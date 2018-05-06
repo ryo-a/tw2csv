@@ -1,6 +1,6 @@
 {
   "name": "tw2csv",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Easy CLI tool for collecting tweets",
   "main": "index.js",
   "repository": "https://github.com/ryo-a/tw2csv.git",
@@ -15,6 +15,12 @@
     "twitter"
   ],
   "dependencies": {
+    "cac": "^5.0.10",
+    "colors": "^1.2.4",
+    "moment": "^2.22.1",
+    "twitter": "^1.7.1"
+  },
+  "peerDependencies": {
     "cac": "^5.0.10",
     "colors": "^1.2.4",
     "moment": "^2.22.1",
