@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const fs = require('fs');
+const path = require('path');
 const cac = require('cac');
 const colors = require('colors');
 const utility = require('./lib/utils.js');
@@ -18,7 +19,8 @@ if (!utils.fileExists(configFileName)) {
   return 1;
 }
 
-const config = require('./' + configFileName);
+
+const config = require(path.resolve(configFileName));
 const twitterAPI = new twitterHandler(config.consumer_key, config.consumer_secret, config.access_token_key, config.access_token_secret);
 
 const searchTweets = cli.command('search', {
