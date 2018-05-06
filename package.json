@@ -1,0 +1,16 @@
+{
+  "name": "tw2csv",
+  "version": "0.1.0",
+  "description": "Easy CLI tool for collecting tweets",
+  "main": "index.js",
+  "repository": "https://github.com/ryo-a/tw2csv.git",
+  "author": "ryo-a <ryoa.dev@gmail.com>",
+  "license": "MIT",
+  "bin": {
+    "tw2csv": "index.js"
+  },"keywords": [
+    "tw2csv",
+    "csv",
+    "twitter"
+  ]
+}
