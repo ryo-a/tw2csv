@@ -8,9 +8,16 @@
   "license": "MIT",
   "bin": {
     "tw2csv": "index.js"
-  },"keywords": [
+  },
+  "keywords": [
     "tw2csv",
     "csv",
     "twitter"
-  ]
+  ],
+  "dependencies": {
+    "cac": "^5.0.10",
+    "colors": "^1.2.4",
+    "moment": "^2.22.1",
+    "twitter": "^1.7.1"
+  }
 }
