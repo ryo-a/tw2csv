@@ -33,7 +33,7 @@ const searchTweets = cli.command('search', {
     utils.generateBlankCSVwithHeader(outputCSVPath);
   }
 
-  
+
   let allowRetweets = false, allowBots = false;
   /*
   [WIP]
@@ -41,11 +41,12 @@ const searchTweets = cli.command('search', {
     allowRetweets = true;
     console.log('RTS')
   }
+  */
 
   if (flags.bots) {
     allowBots = true;
   }
-  */
+
 
   twitterAPI.searchTweets(query[0], outputCSVPath, null, 100, allowRetweets, allowBots);
 

@@ -50,6 +50,10 @@ REST API: `search/tweets`
 $ tw2csv search "KEYWORDS FOR SEARCH" OUTPUT_FILENAME.csv
 ```
 
+#### Options
+
+- `--bots` - Include tweets by bots.
+
 ### Search Tweets from Stream
 _(expetimental)_
 
