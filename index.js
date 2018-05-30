@@ -33,22 +33,34 @@ const searchTweets = cli.command('search', {
     utils.generateBlankCSVwithHeader(outputCSVPath);
   }
 
+  if (query[1] == undefined){
+    console.error(`${colors.red('ERR! FILENAME IS NOT DESIGNATED')}`);
+    return 1;
+  }
 
   let allowRetweets = false, allowBots = false;
-  /*
-  [WIP]
+  let searchMode = 0;
+  
   if (flags.retweets) {
     allowRetweets = true;
-    console.log('RTS')
   }
-  */
 
   if (flags.bots) {
     allowBots = true;
   }
 
+  if (!allowRetweets && !allowBots){ /* mode0: RT = false, Bots = false  */
+    searchMode = 0;
+  } else if(allowRetweets && !allowBots){ /* mode1: RT = true, Bots = false  */
+    searchMode = 1;
+  } else if(!allowRetweets && allowBots){ /* mode2: RT = false, Bots = true  */
+    searchMode = 2;
+  } else if(allowRetweets && allowBots){ /* mode3: RT = true, Bots = true  */
+    searchMode = 3;
+  }
 
-  twitterAPI.searchTweets(query[0], outputCSVPath, null, 100, allowRetweets, allowBots);
+
+  twitterAPI.searchTweets(query[0], outputCSVPath, null, 100, searchMode);
 
 })
 
