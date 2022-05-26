@@ -2,3 +2,6 @@ node_modules/
 .DS_Store
 csv/
 tw2csv-config.json
+tw2csv.config.json
+*.csv
+*.txt

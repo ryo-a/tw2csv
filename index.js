@@ -1,100 +1,79 @@
-#!/usr/bin/env node
+#! /usr/bin/env node
 const fs = require('fs');
-const path = require('path');
-const cac = require('cac');
+const cli = require('cac')();
 const colors = require('colors');
-const utility = require('./lib/utils.js');
+const packagejson = require('./package.json');
 const twitterHandler = require('./lib/twitter-handler.js');
+const utilLib = require('./lib/utils.js');
 
-const cli = cac();
-const utils = new utility();
+const configFileName = 'tw2csv.config.json';
+const utils = new utilLib();
 
-const configFileName = 'tw2csv-config.json';
+console.log(`${colors.cyan.bold('tw')}${colors.magenta.bold('2')}${colors.green.bold('csv')} ver ${packagejson.version}`);
 
-console.log(`${colors.cyan.bold('tw')}${colors.magenta.bold('2')}${colors.green.bold('csv')}`);
-
-if (!utils.fileExists(configFileName)) {
-  console.error(`${colors.red('ERR! NO CONFIG FILE')} : tw2csv generated ${colors.underline(configFileName)} in this directory.\nPlease edit ${configFileName} before running any other tw2csv commands.`);
+if (!fs.existsSync('./' + configFileName)) {
+  console.error(`[${colors.red('ERROR')}] No config file (tw2csv.config.json) found in this directory. `);
   utils.generateJSON();
-  return 1;
+  console.log(`[${colors.green('Info')}] tw2csv.config.json is generated on the current directory. ${colors.yellow('Please update it with your credential by yourself')}.`);
+  console.log(`[${colors.green('Info')}] The current directory : ${process.cwd()}`)
+} else {
+  const config = JSON.parse(fs.readFileSync('./' + configFileName));
+  const twitterAPI = new twitterHandler(config.appKey, config.appSecret, config.accessToken, config.accessSecret);
+
+  (async () => {
+    await twitterAPI.userClient.appLogin();
+  })();
+
+  // search (main command)
+  cli
+    .command('search <keyword> <outfile>', 'Search tweets')
+    .option('-b, --bot', 'Ignore (possible) bot tweets')
+    .option('-r, --rt', 'Ignore retweets')
+    .option('-q, --quote', 'Ignore quote tweets')
+    .option('-m, --mention', 'Ignore mentions')
+    .option('-l, --linebreak', 'Remove line breaking (like \\n -> space)')
+    .option('-v, --verbose', 'Verbose mode (show results in the console)')
+    .action((keyword, outfile, options) => {
+      const parsedOptions = {
+        outfile,
+        ignoreBots: options.bot || false,
+        ignoreRetweets: options.rt || false,
+        ignoreQuotes: options.quote || false,
+        ignoreMentions: options.mention || false,
+        removeLineBreak: options.linebreak || false,
+        verboseMode: options.verbose || false
+      }
+      console.log(`${colors.yellow.bold('Search Tweets')} : ${keyword}`);
+      console.log(`${colors.bold('Output Filename')} : ${outfile}`);
+      console.log(`Options : \n  Ignore Bot Tweets: ${utils.decorateBoolean(parsedOptions.ignoreBots)}\n  Ignore Retweets: ${utils.decorateBoolean(parsedOptions.ignoreRetweets)}\n  Ignore Quote Tweets: ${utils.decorateBoolean(parsedOptions.ignoreQuotes)}\n  Ignore Mentions: ${utils.decorateBoolean(parsedOptions.ignoreMentions)}\n  Remove Line Breaking: ${utils.decorateBoolean(parsedOptions.removeLineBreak)}\n  Verbose Mode: ${utils.decorateBoolean(parsedOptions.verboseMode)}`);
+      console.log(`-----------------------------`)
+      twitterAPI.searchTw(keyword, parsedOptions);
+    });
+
+  //user home timeline (TODO)
+  /*
+  cli
+    .command('user <userId> <outfile>', 'Search tweets')
+    .option('-b, --bot', 'Ignore bot tweets')
+    .option('-r, --rt', 'Ignore retweets')
+    .option('-q, --quote', 'Ignore quote tweets')
+    .option('-m, --mention', 'Ignore mentions')
+    .option('-l, --linebreak', 'Keep line breaking')
+    .option('-v, --verbose', 'Verbose mode (show results in the console)')
+    .action((userId, outfile, options) => {
+
+      console.log(`${colors.yellow.bold('User Timeline')} : @${userId}`);
+      console.log(`${colors.bold('Output Filename')} : ${outfile}`);
+
+    });*/
+
+  // API Access Limit Check
+  cli
+    .command('limit')
+    .action(() => {
+      twitterAPI.getLimit();
+    });
+
+  cli.help();
+  cli.parse();
 }
-
-
-const config = require(path.resolve(configFileName));
-const twitterAPI = new twitterHandler(config.consumer_key, config.consumer_secret, config.access_token_key, config.access_token_secret);
-
-const searchTweets = cli.command('search', {
-  desc: 'Save tweets from search/tweets to CSV file'
-}, (query, flags) => {
-  let outputCSVPath = config.output_dir + '/' + query[1];
-  console.log(`${colors.green('[search/tweets to CSV]')} Filter: ${query[0]}, CSV File: ${query[1]}`);
-
-  if (!utils.fileExists(outputCSVPath)) {
-    utils.generateBlankCSVwithHeader(outputCSVPath);
-  }
-
-  if (query[1] == undefined){
-    console.error(`${colors.red('ERR! FILENAME IS NOT DESIGNATED')}`);
-    return 1;
-  }
-
-  let allowRetweets = false, allowBots = false;
-  let searchMode = 0;
-  
-  if (flags.retweets) {
-    allowRetweets = true;
-  }
-
-  if (flags.bots) {
-    allowBots = true;
-  }
-
-  if (!allowRetweets && !allowBots){ /* mode0: RT = false, Bots = false  */
-    searchMode = 0;
-  } else if(allowRetweets && !allowBots){ /* mode1: RT = true, Bots = false  */
-    searchMode = 1;
-  } else if(!allowRetweets && allowBots){ /* mode2: RT = false, Bots = true  */
-    searchMode = 2;
-  } else if(allowRetweets && allowBots){ /* mode3: RT = true, Bots = true  */
-    searchMode = 3;
-  }
-
-
-  twitterAPI.searchTweets(query[0], outputCSVPath, null, 100, searchMode);
-
-})
-
-/*[WIP]
-searchTweets.option('retweets', {
-  desc: 'Including retweets.'
-})
-
-searchTweets.option('bots', {
-  desc: 'Including bot tweets'
-})
-*/
-
-const streamFilter = cli.command('stream', {
-  desc: 'Save tweets from statuses/filter to CSV file'
-}, (query, flags) => {
-  let outputCSVPath = config.output_dir + '/' + query[1];
-
-  if (!utils.fileExists(outputCSVPath)) {
-    utils.generateBlankCSVwithHeader(outputCSVPath);
-  }
-
-  console.log(`${colors.green('[Stream to CSV]')} Filter: ${query[0]}, CSV File: ${query[1]}`);
-  console.log(`${colors.yellow('This is an experimental feature')}`);
-  twitterAPI.stream(query[0], outputCSVPath);
-
-})
-
-
-const rateLimit = cli.command('limit', {
-  desc: 'API Access Limit'
-}, () => {
-  twitterAPI.rateLimit();
-});
-
-
-cli.parse();
