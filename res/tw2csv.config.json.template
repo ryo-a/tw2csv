@@ -1,0 +1,6 @@
+{
+  "appKey": "PUT YOUR CONSUMER KEY (APP KEY) HERE",
+  "appSecret": "PUT YOUR CONSUMER KEY (APP KEY) SECRET HERE",
+  "accessToken": "PUT YOUR ACCESS TOKEN HERE",
+  "accessSecret": "PUT YOUR ACCESS TOKEN SECRET HERE"
+}
