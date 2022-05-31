@@ -25,8 +25,8 @@ $ cd ~/tweets
 $ tw2csv
 ```
 
-If there isn't `tw2csv-config.json`, tw2csv will generate it automatically.
-You have to set Twitter app's keys to `tw2csv-config.json` like below.
+If there isn't `tw2csv.config.json`, tw2csv will generate it automatically.
+You have to set Twitter app's keys to `tw2csv.config.json` like below.
 
 ```json
 {
@@ -47,8 +47,6 @@ $ tw2csv search "Node.js" results.csv
 
 ### Search Tweets
 
-REST API: `search/tweets`
-
 ```sh
 $ tw2csv search "KEYWORDS FOR SEARCH" OUTPUT_FILENAME.csv
 ```
@@ -68,4 +66,8 @@ $ tw2csv search "KEYWORDS FOR SEARCH" OUTPUT_FILENAME.csv
 $ tw2csv limit
 ```
 
+This will show the API Limit and its reset time like below.
 
+```
+[Info] API Limit ( 74 / 75 ), Reset: 5/31/2022, 10:34:03 PM
+```
